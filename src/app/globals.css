@@ -4,23 +4,49 @@
 
 @layer base {
   :root {
-    /* Warm, healing, cream-based palette — cute but grown-up. */
-    --background: 40 40% 97%;
-    --foreground: 220 25% 22%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 22%;
-    --primary: 205 60% 54%;
+    /* Dark theme for pressplay integration */
+    --background: 215 25% 12%;
+    --foreground: 0 0% 95%;
+    --card: 215 20% 18%;
+    --card-foreground: 0 0% 95%;
+    --primary: 270 70% 55%;
     --primary-foreground: 0 0% 100%;
     --secondary: 152 45% 62%;
-    --secondary-foreground: 155 40% 18%;
-    --muted: 40 20% 93%;
-    --muted-foreground: 220 12% 48%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 215 15% 30%;
+    --muted-foreground: 215 10% 55%;
     --accent: 40 85% 68%;
     --accent-foreground: 30 45% 22%;
-    --border: 40 20% 88%;
-    --input: 40 20% 88%;
-    --ring: 205 60% 54%;
+    --border: 215 20% 25%;
+    --input: 215 20% 25%;
+    --ring: 270 70% 55%;
     --radius: 1rem;
+
+    /* Brand colors */
+    --brand-coral: 10 80% 60%;
+    --brand-sun: 45 100% 55%;
+    --brand-cream: 40 40% 97%;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      /* Light theme fallback */
+      --background: 40 40% 97%;
+      --foreground: 220 25% 22%;
+      --card: 0 0% 100%;
+      --card-foreground: 220 25% 22%;
+      --primary: 205 60% 54%;
+      --primary-foreground: 0 0% 100%;
+      --secondary: 152 45% 62%;
+      --secondary-foreground: 155 40% 18%;
+      --muted: 40 20% 93%;
+      --muted-foreground: 220 12% 48%;
+      --accent: 40 85% 68%;
+      --accent-foreground: 30 45% 22%;
+      --border: 40 20% 88%;
+      --input: 40 20% 88%;
+      --ring: 205 60% 54%;
+    }
   }
 }
 
@@ -29,10 +55,7 @@
     border-color: hsl(var(--border));
   }
   body {
-    background:
-      radial-gradient(1200px 500px at 100% -10%, hsl(205 70% 92%), transparent),
-      radial-gradient(1000px 500px at -10% 110%, hsl(152 55% 92%), transparent),
-      hsl(var(--background));
+    background: hsl(var(--background));
     color: hsl(var(--foreground));
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -42,8 +65,8 @@
 /* Subtle isometric ground for the city scene */
 .city-ground {
   background-image:
-    linear-gradient(hsl(152 40% 88% / 0.6) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(152 40% 88% / 0.6) 1px, transparent 1px);
+    linear-gradient(hsl(215 20% 30% / 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(215 20% 30% / 0.4) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
