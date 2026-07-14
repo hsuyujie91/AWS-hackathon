@@ -1,21 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Check, Sparkles } from "lucide-react";
 import type { Quiz, Flashcard, Course } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export function QuizModal({
   quizzes,
+  answeredQuizIds = [],
+  onAnswer,
   onClose,
 }: {
   quizzes: Quiz[];
+  answeredQuizIds?: string[];
+  onAnswer?: (quizId: string, correct: boolean) => void;
   onClose: () => void;
 }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
+  const [awardedIds, setAwardedIds] = useState(() => new Set(answeredQuizIds));
 
   if (quizzes.length === 0) {
     return (
@@ -42,14 +47,13 @@ export function QuizModal({
   const isCorrect = selectedAnswer === quiz.answerIndex;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/55 p-4 backdrop-blur-sm">
+      <Card className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-[28px] border-white/70 bg-gradient-to-b from-white via-violet-50/70 to-white shadow-2xl">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
           <div>
-            <CardTitle>測驗檢查</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              {currentIdx + 1} / {quizzes.length}
-            </p>
+            <p className="text-[10px] font-bold uppercase tracking-[.16em] text-indigo-500">Knowledge quiz</p>
+            <CardTitle className="mt-1">知識小測驗</CardTitle>
           </div>
           <button
             onClick={onClose}
@@ -57,11 +61,14 @@ export function QuizModal({
           >
             <X className="h-4 w-4" />
           </button>
+          </div>
+          <div className="mt-4 flex items-center justify-between text-xs font-bold text-slate-500"><span>{currentIdx + 1}/{quizzes.length}</span><span>{Math.round(((currentIdx + 1) / quizzes.length) * 100)}%</span></div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 transition-all" style={{ width: `${((currentIdx + 1) / quizzes.length) * 100}%` }} /></div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <p className="text-base font-medium">{quiz.question}</p>
-            <div className="space-y-2">
+        <CardContent className="space-y-5 pb-6">
+          <div className="rounded-[22px] bg-white/90 p-4 shadow-sm ring-1 ring-violet-100">
+            <p className="mb-5 text-center text-base font-black leading-7 text-slate-900">{quiz.question}</p>
+            <div className="space-y-2.5">
               {quiz.options.map((option, idx) => (
                 <button
                   key={idx}
@@ -69,17 +76,19 @@ export function QuizModal({
                     if (!answered) {
                       setSelectedAnswer(idx);
                       setAnswered(true);
+                      if (!awardedIds.has(quiz.id)) {
+                        const nextAwarded = new Set(awardedIds);
+                        nextAwarded.add(quiz.id);
+                        setAwardedIds(nextAwarded);
+                        onAnswer?.(quiz.id, idx === quiz.answerIndex);
+                      }
                     }
                   }}
-                  className={`w-full p-3 rounded-lg border-2 transition-all text-left ${
-                    selectedAnswer === idx
-                      ? isCorrect
-                        ? "border-green-500 bg-green-500/10"
-                        : "border-red-500 bg-red-500/10"
-                      : "border-border hover:border-primary/50"
-                  } ${answered ? "cursor-default" : "cursor-pointer"}`}
+                  className={`flex w-full items-center gap-3 rounded-xl border-2 bg-white p-3 text-left text-sm font-semibold transition-all ${answered && idx === quiz.answerIndex ? "border-emerald-500 bg-emerald-50 text-emerald-700" : selectedAnswer === idx && !isCorrect ? "border-rose-400 bg-rose-50 text-rose-700" : "border-slate-100 hover:border-indigo-300"} ${answered ? "cursor-default" : "cursor-pointer"}`}
                 >
-                  {option}
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-slate-200 text-xs font-black">{String.fromCharCode(65 + idx)}</span>
+                  <span className="flex-1">{option}</span>
+                  {answered && idx === quiz.answerIndex && <Check className="h-5 w-5 text-emerald-500" />}
                 </button>
               ))}
             </div>
@@ -87,16 +96,14 @@ export function QuizModal({
 
           {answered && (
             <div
-              className={`rounded-lg p-4 ${
+              className={`rounded-[20px] p-4 ${
                 isCorrect
-                  ? "bg-green-500/10 text-green-600"
-                  : "bg-red-500/10 text-red-600"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-rose-50 text-rose-700"
               }`}
             >
-              <p className="font-semibold mb-2">
-                {isCorrect ? "✓ 正確！" : "✗ 不對"}
-              </p>
-              <p className="text-sm">{quiz.explanation}</p>
+              <div className="mb-2 flex items-center justify-between"><p className="font-black">{isCorrect ? "答對了！" : "再複習一下"}</p><span className="flex items-center gap-1 rounded-full bg-white/70 px-2.5 py-1 text-xs font-black"><Sparkles className="h-3.5 w-3.5" />+{isCorrect ? 5 : 2} XP</span></div>
+              <p className="text-sm leading-6">{quiz.explanation}</p>
             </div>
           )}
 
@@ -111,7 +118,7 @@ export function QuizModal({
                 }
               }}
               disabled={currentIdx === 0}
-              className="flex-1"
+              className="flex-1 rounded-xl"
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               上一題
@@ -122,13 +129,15 @@ export function QuizModal({
                   setCurrentIdx(currentIdx + 1);
                   setSelectedAnswer(null);
                   setAnswered(false);
+                } else {
+                  onClose();
                 }
               }}
-              disabled={currentIdx === quizzes.length - 1}
-              className="flex-1"
+              disabled={!answered}
+              className="flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600"
             >
-              下一題
-              <ChevronRight className="h-4 w-4 ml-2" />
+              {currentIdx === quizzes.length - 1 ? "結束" : "下一題"}
+              {currentIdx < quizzes.length - 1 && <ChevronRight className="h-4 w-4 ml-2" />}
             </Button>
           </div>
         </CardContent>
@@ -247,13 +256,14 @@ export function FlashcardsModal({
                 if (currentIdx < flashcards.length - 1) {
                   setCurrentIdx(currentIdx + 1);
                   setIsFlipped(false);
+                } else {
+                  onClose();
                 }
               }}
-              disabled={currentIdx === flashcards.length - 1}
               className="flex-1"
             >
-              下一張
-              <ChevronRight className="h-4 w-4 ml-2" />
+              {currentIdx === flashcards.length - 1 ? "結束" : "下一張"}
+              {currentIdx < flashcards.length - 1 && <ChevronRight className="h-4 w-4 ml-2" />}
             </Button>
           </div>
         </CardContent>

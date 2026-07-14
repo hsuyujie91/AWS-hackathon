@@ -53,6 +53,8 @@ export interface Course {
   status: CourseStatus;
   /** Where the user paused, e.g. "ETF 的風險分散 12:34" */
   resumePoint?: string;
+  /** Recent playback interruptions reported by the video player. */
+  playbackStalls?: number;
 }
 
 export type Familiarity = "known" | "fuzzy" | "forgot";
@@ -69,6 +71,8 @@ export interface Flashcard {
 export interface Quiz {
   id: string;
   courseId: string;
+  /** Building/domain this quiz belongs to. */
+  category: CategoryId;
   question: string;
   options: string[];
   answerIndex: number;
@@ -103,9 +107,11 @@ export interface DailyTask {
   estMinutes: number;
   /** Why this task matters — shown to reduce friction. */
   purpose: string;
-  /** Reward copy, e.g. 記憶卡工坊獲得 20 點建設值 */
+  /** Reward copy, e.g. 學習卡工坊獲得 20 點建設值 */
   reward: string;
   xp: number;
+  /** Coins granted immediately when this task is completed. */
+  coins: number;
   /** Building that grows on completion. */
   buildingId: CategoryId;
   done: boolean;
@@ -129,6 +135,7 @@ export interface User {
   name: string;
   level: number;
   xp: number;
+  coins: number;
   totalMinutes: number;
   weekMinutes: number;
   coursesCompleted: number;
@@ -145,6 +152,8 @@ export interface AppState {
   courses: Course[];
   flashcards: Flashcard[];
   quizzes: Quiz[];
+  /** Prevents repeated XP rewards for answering the same question. */
+  answeredQuizIds: string[];
   tasks: DailyTask[];
   activity: ActivityEntry[];
   notes: string[];

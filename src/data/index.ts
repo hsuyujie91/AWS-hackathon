@@ -10,6 +10,7 @@ export const seedUser: User = {
   name: "小魚",
   level: 7,
   xp: 1280,
+  coins: 12450,
   totalMinutes: 1280,
   weekMinutes: 95,
   coursesCompleted: 3,
@@ -27,6 +28,7 @@ export function createInitialState(): AppState {
     courses: seedCourses,
     flashcards: seedFlashcards,
     quizzes: seedQuizzes,
+    answeredQuizIds: [] as string[],
     tasks: seedTasks,
     activity: seedActivity,
     notes: [] as string[],
@@ -36,6 +38,7 @@ export function createInitialState(): AppState {
   const personalizedTasks = generateDailyTasks({
     user: baseState.user,
     buildings: baseState.buildings,
+    courses: baseState.courses,
     completedTasks: baseState.tasks.filter((t) => t.done).map((t) => t.id),
   });
 

@@ -13,7 +13,7 @@ import type {
   CategoryId,
   Familiarity,
 } from "@/types";
-import { createInitialState } from "@/data";
+import { createInitialState, seedBuildings, seedQuizzes } from "@/data";
 import {
   buildingLevelFromMinutes,
   levelFromXp,
@@ -37,15 +37,39 @@ type Action =
 
 /** Recompute derived fields (user level, building levels) after any change. */
 function recompute(state: AppState): AppState {
-  const buildings = state.buildings.map((b) => ({
-    ...b,
-    level: buildingLevelFromMinutes(b.minutes),
-    unlocked: b.unlocked || b.minutes > 0,
-  }));
+  const buildings = state.buildings.map((b) => {
+    const currentMetadata = seedBuildings.find((seed) => seed.id === b.id);
+    return {
+      ...b,
+      ...(currentMetadata
+        ? {
+            name: currentMetadata.name,
+            category: currentMetadata.category,
+            emoji: currentMetadata.emoji,
+            color: currentMetadata.color,
+          }
+        : {}),
+      level: buildingLevelFromMinutes(b.minutes),
+      unlocked: true,
+    };
+  });
   return {
     ...state,
+    tasks: state.tasks.map((task) => ({
+      ...task,
+      coins: task.coins ?? Math.max(10, Math.round(task.xp * 1.5)),
+    })),
+    quizzes:
+      state.quizzes?.length > 0 && state.quizzes.every((quiz) => quiz.category)
+        ? state.quizzes
+        : seedQuizzes,
+    answeredQuizIds: state.answeredQuizIds ?? [],
     buildings,
-    user: { ...state.user, level: levelFromXp(state.user.xp) },
+    user: {
+      ...state.user,
+      coins: state.user.coins ?? 0,
+      level: levelFromXp(state.user.xp),
+    },
   };
 }
 
@@ -92,6 +116,10 @@ function reducer(state: AppState, action: Action): AppState {
       const task = state.tasks.find((t) => t.id === action.taskId);
       if (!task || task.done) return state;
       let next = addXp(state, task.xp);
+      next = {
+        ...next,
+        user: { ...next.user, coins: next.user.coins + task.coins },
+      };
       // A task worth N xp represents ~estMinutes of learning for its building.
       next = growBuilding(next, task.buildingId, task.estMinutes);
       next = {
@@ -132,6 +160,7 @@ function reducer(state: AppState, action: Action): AppState {
     }
 
     case "ANSWER_QUIZ": {
+      if ((state.answeredQuizIds ?? []).includes(action.quizId)) return state;
       let next = addXp(state, action.correct ? XP_RULES.dailyQuestion : 2);
       const quizzesDone = next.user.quizzesDone + 1;
       // Rolling accuracy estimate for the demo.
@@ -140,6 +169,7 @@ function reducer(state: AppState, action: Action): AppState {
         (action.correct ? 1 : 0);
       next = {
         ...next,
+        answeredQuizIds: [...(next.answeredQuizIds ?? []), action.quizId],
         user: {
           ...next.user,
           quizzesDone,

@@ -3,54 +3,82 @@ import type { ReturnNotification } from "@/types";
 /**
  * Catch-up notifications. Note the deliberate design: no guilt, no streak loss.
  * Copy always answers: where you stopped, why it's low-effort, what to do now.
+ * Grouped by recall window — short (數分鐘~1天), mid (3~7天), long (超過一週).
  */
 export const seedNotifications: ReturnNotification[] = [
+  // 短期召回
   {
     id: "n1",
     tier: "short",
-    timeframe: "離開 30 分鐘",
-    body: "你上次停在『ETF 的風險分散』，剩下 4 分鐘就能完成這一章。圖書館正在等你放進下一本書。",
-    cta: "從剛才的地方繼續",
+    timeframe: "約 5 分鐘前",
+    body: "再學習 3 分鐘，投資銀行就能獲得 20 XP，離升級更近一步。",
+    cta: "繼續建設",
     target: "resume",
   },
   {
     id: "n2",
     tier: "short",
-    timeframe: "離開 1 天",
-    body: "你的城市昨天長高了一點點！回來看 3 分鐘，投資銀行就能再升一級。",
-    cta: "3 分鐘完成本章",
+    timeframe: "約 2 小時前",
+    body: "你只剩下 4 分鐘就能完成這一章，AI 助教已經幫你接好進度。",
+    cta: "從上次位置繼續",
     target: "resume",
   },
   {
     id: "n3",
-    tier: "mid",
-    timeframe: "3 天未回來",
-    body: "學習城市幫你整理了上次的三個重點，花 60 秒就能快速想起來。",
-    cta: "先看摘要再繼續",
+    tier: "short",
+    timeframe: "約 1 天前",
+    body: "《小資族 ETF 投資入門》的三個重要觀念，只要 60 秒就能快速想起來。",
+    cta: "快速複習",
     target: "highlight",
   },
+  // 中期召回｜3～7 天
   {
     id: "n4",
     tier: "mid",
-    timeframe: "5 天未回來",
-    body: "有 12 張記憶卡在複習中心等你，挑一張最有印象的，60 秒喚醒記憶。",
-    cta: "抽一張記憶卡",
-    target: "flashcards",
+    timeframe: "3 天前",
+    body: "我們把你停下來前的內容整理成一段 90 秒精華，不用重新看完整章節。",
+    cta: "播放課程精華",
+    target: "highlight",
   },
   {
     id: "n5",
-    tier: "long",
-    timeframe: "7 天未回來",
-    body: "好久不見！城市沒有荒廢，你之前累積的學習都還在。今天要不要從一張記憶卡重新開始？",
-    cta: "從一張記憶卡開始",
+    tier: "mid",
+    timeframe: "5 天前",
+    body: "AI 助教從你上次的內容出了一題小測驗，回答完就能找回學習狀態。",
+    cta: "回答一題",
     target: "flashcards",
   },
   {
     id: "n6",
+    tier: "mid",
+    timeframe: "7 天前",
+    body: "AI 助教依照你上次的答題結果，準備了一個更簡單的例子，花 2 分鐘就能補起來。",
+    cta: "看看新解釋",
+    target: "highlight",
+  },
+  // 長期召回｜超過一週
+  {
+    id: "n7",
     tier: "long",
-    timeframe: "14 天未回來",
-    body: "歡迎回來！你的城市一直幫你保存著之前的學習成果。今天從三分鐘的小任務重新開始吧。",
-    cta: "做一個 3 分鐘小任務",
+    timeframe: "10 天前",
+    body: "累積的學習時間、筆記和建築都完整保存著，今天從一張學習卡重新開始就好。",
+    cta: "輕鬆回來看看",
+    target: "flashcards",
+  },
+  {
+    id: "n8",
+    tier: "long",
+    timeframe: "14 天前",
+    body: "這些努力沒有消失，AI 助教準備了一個 3 分鐘回歸任務，陪你接回進度。",
+    cta: "開始回歸任務",
+    target: "task",
+  },
+  {
+    id: "n9",
+    tier: "long",
+    timeframe: "超過 2 週前",
+    body: "你可以繼續上次進度、先看精華，或讓 AI 助教重新安排更適合的學習任務。",
+    cta: "選擇新的下一步",
     target: "task",
   },
 ];

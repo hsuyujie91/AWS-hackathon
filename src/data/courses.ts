@@ -11,6 +11,7 @@ export const seedCourses: Course[] = [
     minutesLeft: 24,
     status: "in-progress",
     resumePoint: "ETF 的風險分散 12:34",
+    playbackStalls: 3,
   },
   {
     id: "c-pm",
@@ -22,6 +23,7 @@ export const seedCourses: Course[] = [
     minutesLeft: 58,
     status: "in-progress",
     resumePoint: "如何問出真需求 08:20",
+    playbackStalls: 0,
   },
   {
     id: "c-bake",
@@ -33,6 +35,7 @@ export const seedCourses: Course[] = [
     minutesLeft: 90,
     status: "in-progress",
     resumePoint: "基礎麵團的攪拌 04:10",
+    playbackStalls: 1,
   },
   {
     id: "c-ai",
@@ -44,6 +47,7 @@ export const seedCourses: Course[] = [
     minutesLeft: 14,
     status: "in-progress",
     resumePoint: "用 AI 整理會議記錄 21:05",
+    playbackStalls: 2,
   },
   {
     id: "c-fin101",

@@ -1,4 +1,4 @@
-import type { DailyTask, Building, User } from "@/types";
+import type { DailyTask, Building, Course, User } from "@/types";
 import type { CategoryId } from "@/types";
 
 /**
@@ -9,6 +9,7 @@ import type { CategoryId } from "@/types";
 interface CoachContext {
   user: User;
   buildings: Building[];
+  courses?: Course[];
   completedTasks: string[];
 }
 
@@ -22,6 +23,7 @@ const taskTemplates: Record<string, DailyTask> = {
     purpose: "趁記憶還新鮮時鞏固，隔天複習能大幅提升長期記憶。",
     reward: "",
     xp: 15,
+    coins: 20,
     buildingId: "investing",
     done: false,
   },
@@ -33,6 +35,7 @@ const taskTemplates: Record<string, DailyTask> = {
     purpose: "定期複習能將短期記憶轉換為長期記憶。",
     reward: "",
     xp: 25,
+    coins: 35,
     buildingId: "career",
     done: false,
   },
@@ -46,6 +49,7 @@ const taskTemplates: Record<string, DailyTask> = {
     purpose: "只差一小段就能完成整個章節，建築即將升級。",
     reward: "",
     xp: 20,
+    coins: 30,
     buildingId: "language",
     done: false,
   },
@@ -57,6 +61,7 @@ const taskTemplates: Record<string, DailyTask> = {
     purpose: "開始新課程，穩定的學習進度最重要。",
     reward: "",
     xp: 40,
+    coins: 55,
     buildingId: "baking",
     done: false,
   },
@@ -70,6 +75,7 @@ const taskTemplates: Record<string, DailyTask> = {
     purpose: "用測驗檢查自己是否真的理解，比重看一次更有效。",
     reward: "",
     xp: 15,
+    coins: 25,
     buildingId: "beauty",
     done: false,
   },
@@ -83,20 +89,21 @@ const taskTemplates: Record<string, DailyTask> = {
     purpose: "用自己的話寫下來，是把知識變成能力的關鍵一步。",
     reward: "",
     xp: 20,
+    coins: 30,
     buildingId: "fitness",
     done: false,
   },
 };
 
 const buildingNames: Record<CategoryId, string> = {
-  investing: "投資銀行",
-  career: "職場辦公大樓",
-  language: "語言學院",
-  baking: "烘焙工坊",
-  beauty: "美妝沙龍",
-  fitness: "健身房",
-  lifestyle: "生活創意館",
-  digital: "數位科技中心",
+  investing: "財富銀行",
+  career: "職場大樓",
+  language: "語言圖書館",
+  baking: "烘焙坊",
+  beauty: "藝文廣場",
+  fitness: "活力健身房",
+  lifestyle: "質感生活館",
+  digital: "行銷研究所",
 };
 
 const courseNames: Record<CategoryId, string[]> = {
@@ -155,7 +162,7 @@ const courseNames: Record<CategoryId, string[]> = {
  */
 export function generateDailyTasks(context: CoachContext): DailyTask[] {
   const tasks: DailyTask[] = [];
-  const { user, buildings } = context;
+  const { user, buildings, courses = [] } = context;
 
   // Find the weakest building (lowest level) to focus on
   const weakestBuilding = buildings.reduce((prev, curr) =>
@@ -167,11 +174,30 @@ export function generateDailyTasks(context: CoachContext): DailyTask[] {
     curr.level > prev.level ? curr : prev
   );
 
-  // Task 1: Review task for strongest building (reinforcement)
+  // Task 1: prioritize a short recovery task when the player reports stalls.
+  const stalledCourse = courses
+    .filter((course) => course.status === "in-progress" && (course.playbackStalls ?? 0) >= 2)
+    .sort((a, b) => (b.playbackStalls ?? 0) - (a.playbackStalls ?? 0))[0];
+
+  if (stalledCourse) {
+    tasks.push({
+      ...taskTemplates.watch_finish,
+      id: "daily-playback-recovery",
+      title: `從《${stalledCourse.title}》上次中斷處接著看 3 分鐘`,
+      purpose: `偵測到影片最近中斷 ${stalledCourse.playbackStalls} 次，先安排短片段並保留進度，降低重新開始的負擔。`,
+      buildingId: stalledCourse.category,
+      estMinutes: 3,
+      xp: 24,
+      coins: 36,
+      reward: `${buildingNames[stalledCourse.category]}獲得 24 點建設值`,
+    });
+  }
+
+  // Task 2: Review task for strongest building (reinforcement)
   if (strongestBuilding.level >= 2) {
     const reviewTask = {
       ...taskTemplates.review_short,
-      id: `daily-review-${Date.now()}`,
+      id: "daily-review",
       title: `花 3 分鐘複習昨天學過的 ${buildingNames[strongestBuilding.id]} 觀念`,
       buildingId: strongestBuilding.id,
       reward: `${buildingNames[strongestBuilding.id]}獲得 15 點建設值`,
@@ -186,10 +212,11 @@ export function generateDailyTasks(context: CoachContext): DailyTask[] {
     const courseIdx = Math.floor(weakestBuilding.minutes / 30) % courses.length;
     const watchTask = {
       ...taskTemplates.watch_finish,
-      id: `daily-watch-${Date.now()}`,
+      id: "daily-watch",
       title: `看完《${courses[courseIdx]}》剩下的 4 分鐘完成本章`,
       buildingId: weakestBuilding.id,
       xp: 20 + weakestBuilding.level * 2,
+      coins: 25 + weakestBuilding.level * 5,
       reward: `${buildingNames[weakestBuilding.id]}獲得 ${20 + weakestBuilding.level * 2} 點建設值`,
       estMinutes: Math.max(3, 5 - weakestBuilding.level),
     };
@@ -197,30 +224,34 @@ export function generateDailyTasks(context: CoachContext): DailyTask[] {
   }
 
   // Task 3: Quiz or Note task
-  const randomBuilding =
-    buildings[Math.floor(Math.random() * buildings.length)];
+  // Keep the initial result deterministic so server and browser render the same task list.
+  // A real API can replace this seed-based choice later.
+  const profileSeed = (user.xp + user.totalMinutes + user.quizzesDone) % buildings.length;
+  const randomBuilding = buildings[profileSeed];
 
   if (user.quizzesDone < 10) {
     // Encourage quiz practice for new users
     const quizTask = {
       ...taskTemplates.quiz_checkpoint,
-      id: `daily-quiz-${Date.now()}`,
+      id: "daily-quiz",
       title: `回答一題 ${buildingNames[randomBuilding.id]} 的小測驗`,
       buildingId: randomBuilding.id,
       xp: 12,
+      coins: 20,
       reward: `${buildingNames[randomBuilding.id]}獲得 12 點建設值`,
     };
     tasks.push(quizTask);
   } else {
     // Encourage note-taking for experienced users
     const courses = courseNames[randomBuilding.id];
-    const courseIdx = Math.floor(Math.random() * courses.length);
+    const courseIdx = profileSeed % courses.length;
     const noteTask = {
       ...taskTemplates.note_reflection,
-      id: `daily-note-${Date.now()}`,
+      id: "daily-note",
       title: `為《${courses[courseIdx]}》寫一句學習筆記`,
       buildingId: randomBuilding.id,
       xp: 18,
+      coins: 28,
       reward: `${buildingNames[randomBuilding.id]}獲得 18 點建設值`,
     };
     tasks.push(noteTask);
@@ -228,21 +259,21 @@ export function generateDailyTasks(context: CoachContext): DailyTask[] {
 
   // Task 4: Bonus task based on streak (learning consistency)
   if (user.totalMinutes > 60) {
-    const allBuildings = buildings.sort(() => Math.random() - 0.5).slice(0, 2);
-    const bonusBuilding = allBuildings[0];
+    const bonusBuilding = buildings[(profileSeed + 3) % buildings.length];
     const bonusTask = {
       ...taskTemplates.watch_new,
-      id: `daily-bonus-${Date.now()}`,
+      id: "daily-bonus",
       title: `探索新課程：${courseNames[bonusBuilding.id][0]}`,
       buildingId: bonusBuilding.id,
       xp: 35,
+      coins: 50,
       reward: `${buildingNames[bonusBuilding.id]}獲得 35 點建設值`,
       estMinutes: 8,
     };
     tasks.push(bonusTask);
   }
 
-  return tasks;
+  return tasks.slice(0, 4);
 }
 
 /**

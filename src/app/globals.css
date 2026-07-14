@@ -4,22 +4,21 @@
 
 @layer base {
   :root {
-    /* Dark theme for pressplay integration */
-    --background: 215 25% 12%;
-    --foreground: 0 0% 95%;
-    --card: 215 20% 18%;
-    --card-foreground: 0 0% 95%;
-    --primary: 270 70% 55%;
+    --background: 220 35% 96%;
+    --foreground: 222 47% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 14%;
+    --primary: 243 75% 62%;
     --primary-foreground: 0 0% 100%;
     --secondary: 152 45% 62%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 215 15% 30%;
-    --muted-foreground: 215 10% 55%;
+    --muted: 220 25% 95%;
+    --muted-foreground: 218 12% 48%;
     --accent: 40 85% 68%;
     --accent-foreground: 30 45% 22%;
-    --border: 215 20% 25%;
-    --input: 215 20% 25%;
-    --ring: 270 70% 55%;
+    --border: 220 20% 91%;
+    --input: 220 20% 91%;
+    --ring: 243 75% 62%;
     --radius: 1rem;
 
     /* Brand colors */
@@ -28,26 +27,6 @@
     --brand-cream: 40 40% 97%;
   }
 
-  @media (prefers-color-scheme: light) {
-    :root {
-      /* Light theme fallback */
-      --background: 40 40% 97%;
-      --foreground: 220 25% 22%;
-      --card: 0 0% 100%;
-      --card-foreground: 220 25% 22%;
-      --primary: 205 60% 54%;
-      --primary-foreground: 0 0% 100%;
-      --secondary: 152 45% 62%;
-      --secondary-foreground: 155 40% 18%;
-      --muted: 40 20% 93%;
-      --muted-foreground: 220 12% 48%;
-      --accent: 40 85% 68%;
-      --accent-foreground: 30 45% 22%;
-      --border: 40 20% 88%;
-      --input: 40 20% 88%;
-      --ring: 205 60% 54%;
-    }
-  }
 }
 
 @layer base {
@@ -55,11 +34,46 @@
     border-color: hsl(var(--border));
   }
   body {
-    background: hsl(var(--background));
+    background:
+      radial-gradient(circle at 20% 0%, rgba(199, 210, 254, .55), transparent 35%),
+      radial-gradient(circle at 90% 20%, rgba(186, 230, 253, .45), transparent 30%),
+      hsl(var(--background));
     color: hsl(var(--foreground));
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
+}
+
+.site-stage {
+  min-height: 100dvh;
+  padding: 0;
+}
+
+.site-shell {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  min-height: 100dvh;
+  margin-inline: auto;
+  overflow-x: hidden;
+  background: #f8fafc;
+}
+
+@media (min-width: 768px) {
+  .site-stage { padding: 24px; }
+  .site-shell {
+    min-height: calc(100dvh - 48px);
+    border: 1px solid rgba(226, 232, 240, .9);
+    border-radius: 30px;
+    box-shadow: 0 28px 80px -34px rgba(30, 41, 59, .5);
+  }
+}
+
+.homepage-hero {
+  background:
+    radial-gradient(circle at 18% 10%, rgba(224, 231, 255, .95), transparent 32%),
+    radial-gradient(circle at 86% 10%, rgba(186, 230, 253, .5), transparent 30%),
+    linear-gradient(135deg, #f8fbff, #eef6ff);
 }
 
 /* Subtle isometric ground for the city scene */
@@ -77,4 +91,9 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* The building experience owns its compact page header. */
+.site-shell:has(.building-detail-page) > header {
+  display: none;
 }

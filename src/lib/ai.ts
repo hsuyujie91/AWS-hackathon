@@ -47,6 +47,7 @@ export async function generateQuiz(course: Course): Promise<Quiz> {
   return delay({
     id: `gen-q-${course.id}`,
     courseId: course.id,
+    category: course.category,
     question: `關於《${course.title}》，以下敘述何者正確？`,
     options: ["示範選項 A", "示範選項 B（正確）", "示範選項 C", "示範選項 D"],
     answerIndex: 1,
@@ -104,6 +105,7 @@ export async function generateDailyTask(course: Course): Promise<DailyTask> {
     purpose: "只差一小段就能完成，城市馬上就能長高。",
     reward: "對應建築獲得建設值",
     xp: Math.min(course.minutesLeft, 5) * 2,
+    coins: Math.max(10, Math.min(course.minutesLeft, 5) * 3),
     buildingId: course.category,
     done: false,
   });

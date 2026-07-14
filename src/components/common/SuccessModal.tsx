@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export interface SuccessInfo {
   xp: number;
+  coins?: number;
   buildingName: string;
   message?: string;
   leveledUp?: boolean;
@@ -41,6 +42,12 @@ export function SuccessModal({
               <span className="text-muted-foreground">獲得經驗值</span>
               <span className="font-bold text-brand-sky">+{info.xp} XP</span>
             </div>
+            {info.coins !== undefined && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">獲得金幣</span>
+                <span className="font-bold text-amber-600">+{info.coins} 金幣</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">成長的建築</span>
               <span className="inline-flex items-center gap-1 font-semibold">
