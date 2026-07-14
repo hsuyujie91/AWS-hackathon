@@ -18,12 +18,19 @@ import { LevelBadge } from "@/components/common/LevelBadge";
 import { CourseCard } from "@/components/courses/CourseCard";
 import { SuccessModal, type SuccessInfo } from "@/components/common/SuccessModal";
 import { formatMinutes } from "@/lib/utils";
+import {
+  QuizModal,
+  FlashcardsModal,
+  NotesModal,
+  HighlightsModal,
+} from "@/components/review/ReviewModals";
 
 export default function BuildingDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { state, dispatch } = useStore();
   const [success, setSuccess] = useState<SuccessInfo | null>(null);
+  const [openModal, setOpenModal] = useState<"quiz" | "flashcards" | "notes" | "highlights" | null>(null);
 
   const building = state.buildings.find((b) => b.id === params.id);
 
@@ -34,6 +41,22 @@ export default function BuildingDetailPage() {
   const activity = useMemo(
     () => state.activity.filter((a) => a.category === (params.id as CategoryId)),
     [state.activity, params.id],
+  );
+
+  const quizzes = useMemo(
+    () => state.quizzes.filter((q) => {
+      const course = state.courses.find((c) => c.id === q.courseId);
+      return course?.category === (params.id as CategoryId);
+    }),
+    [state.quizzes, state.courses, params.id],
+  );
+
+  const flashcards = useMemo(
+    () => state.flashcards.filter((f) => {
+      const course = state.courses.find((c) => c.id === f.courseId);
+      return course?.category === (params.id as CategoryId);
+    }),
+    [state.flashcards, state.courses, params.id],
   );
 
   if (!building) {
@@ -140,14 +163,15 @@ export default function BuildingDetailPage() {
         <h2 className="text-sm font-semibold text-muted-foreground px-1">複習工具</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[
-            { icon: BookMarked, label: "測驗", color: "bg-blue-500/10 hover:bg-blue-500/20" },
-            { icon: Lightbulb, label: "學習卡", color: "bg-purple-500/10 hover:bg-purple-500/20" },
-            { icon: FileText, label: "筆記", color: "bg-amber-500/10 hover:bg-amber-500/20" },
-            { icon: Zap, label: "課程精華", color: "bg-rose-500/10 hover:bg-rose-500/20" },
-          ].map(({ icon: Icon, label, color }) => (
+            { icon: BookMarked, label: "測驗", color: "bg-blue-500/10 hover:bg-blue-500/20", action: "quiz" as const },
+            { icon: Lightbulb, label: "學習卡", color: "bg-purple-500/10 hover:bg-purple-500/20", action: "flashcards" as const },
+            { icon: FileText, label: "筆記", color: "bg-amber-500/10 hover:bg-amber-500/20", action: "notes" as const },
+            { icon: Zap, label: "課程精華", color: "bg-rose-500/10 hover:bg-rose-500/20", action: "highlights" as const },
+          ].map(({ icon: Icon, label, color, action }) => (
             <button
               key={label}
-              className={`rounded-2xl border border-border p-4 text-center transition-colors ${color}`}
+              onClick={() => setOpenModal(action)}
+              className={`rounded-2xl border border-border p-4 text-center transition-colors cursor-pointer ${color}`}
             >
               <Icon className="mx-auto mb-2 h-6 w-6" />
               <div className="text-sm font-medium">{label}</div>
@@ -196,6 +220,27 @@ export default function BuildingDetailPage() {
       )}
 
       <SuccessModal info={success} onClose={() => setSuccess(null)} />
+
+      {/* Modals */}
+      {openModal === "quiz" && (
+        <QuizModal quizzes={quizzes} onClose={() => setOpenModal(null)} />
+      )}
+      {openModal === "flashcards" && (
+        <FlashcardsModal flashcards={flashcards} onClose={() => setOpenModal(null)} />
+      )}
+      {openModal === "notes" && (
+        <NotesModal
+          buildingName={building.name}
+          notes={state.notes}
+          onAddNote={(note: string) => {
+            dispatch({ type: "ADD_NOTE", note, category: params.id as CategoryId });
+          }}
+          onClose={() => setOpenModal(null)}
+        />
+      )}
+      {openModal === "highlights" && (
+        <HighlightsModal courses={courses} onClose={() => setOpenModal(null)} />
+      )}
     </div>
   );
 }
