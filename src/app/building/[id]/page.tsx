@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Clock, BookOpen, TrendingUp, Play } from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, TrendingUp, Play, BookMarked, Lightbulb, FileText, Zap } from "lucide-react";
 import type { CategoryId, Course } from "@/types";
 import { useStore } from "@/lib/store";
 import {
@@ -133,6 +133,27 @@ export default function BuildingDetailPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Review tools */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-semibold text-muted-foreground px-1">複習工具</h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            { icon: BookMarked, label: "測驗", color: "bg-blue-500/10 hover:bg-blue-500/20" },
+            { icon: Lightbulb, label: "學習卡", color: "bg-purple-500/10 hover:bg-purple-500/20" },
+            { icon: FileText, label: "筆記", color: "bg-amber-500/10 hover:bg-amber-500/20" },
+            { icon: Zap, label: "課程精華", color: "bg-rose-500/10 hover:bg-rose-500/20" },
+          ].map(({ icon: Icon, label, color }) => (
+            <button
+              key={label}
+              className={`rounded-2xl border border-border p-4 text-center transition-colors ${color}`}
+            >
+              <Icon className="mx-auto mb-2 h-6 w-6" />
+              <div className="text-sm font-medium">{label}</div>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Courses in this category */}
