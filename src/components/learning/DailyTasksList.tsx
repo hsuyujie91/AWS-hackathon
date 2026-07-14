@@ -29,7 +29,7 @@ export function DailyTasksList({ tasks, onStart }: { tasks: DailyTask[]; onStart
               </span>
               <span className="min-w-0 flex-1">
                 <span className={cn("block truncate text-[13px] font-bold text-slate-800", task.done && "line-through")}>{task.title}</span>
-                <span className="mt-1 flex items-center gap-2 text-[10px] font-medium text-slate-400"><Clock3 className="h-3 w-3" /> 約 {task.estMinutes} 分鐘 <span className="text-amber-500">+{task.xp} XP</span></span>
+                <span className="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-medium text-slate-400"><Clock3 className="h-3 w-3" /> 約 {task.estMinutes} 分鐘 <span className="text-amber-500">+{task.xp} XP</span><span className="text-yellow-600">+{task.coins} 金幣</span></span>
               </span>
               <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
             </button>

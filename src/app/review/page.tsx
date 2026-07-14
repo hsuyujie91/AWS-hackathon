@@ -43,14 +43,14 @@ export default function ReviewPage() {
       <div>
         <h1 className="text-2xl font-bold">複習中心</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          記憶卡、測驗與課程精華，幫你把學過的內容留下來。
+          學習卡、測驗與課程精華，幫你把學過的內容留下來。
         </p>
       </div>
 
       <Tabs defaultValue="flashcards">
         <TabsList className="w-full">
           <TabsTrigger value="flashcards" className="flex-1">
-            記憶卡
+            學習卡
           </TabsTrigger>
           <TabsTrigger value="quiz" className="flex-1">
             問題測驗

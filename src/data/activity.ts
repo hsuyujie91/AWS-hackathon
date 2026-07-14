@@ -9,7 +9,7 @@ export const seedActivity: ActivityEntry[] = [
   { id: "a5", date: "2026-07-11", type: "watch", title: "觀看《產品經理的需求訪談術》", minutes: 25, category: "career" },
   { id: "a6", date: "2026-07-09", type: "note", title: "為《新手居家烘焙》新增學習筆記", category: "baking" },
   { id: "a7", date: "2026-07-09", type: "watch", title: "觀看《新手居家烘焙》", minutes: 15, category: "baking" },
-  { id: "a8", date: "2026-07-06", type: "review", title: "完成一組 ETF 記憶卡複習", category: "investing" },
+  { id: "a8", date: "2026-07-06", type: "review", title: "完成一組 ETF 學習卡複習", category: "investing" },
   { id: "a9", date: "2026-06-28", type: "watch", title: "完成《看懂財報的第一堂課》", minutes: 40, category: "investing" },
   { id: "a10", date: "2026-06-20", type: "watch", title: "完成《職場簡報表達力》", minutes: 35, category: "career" },
 ];

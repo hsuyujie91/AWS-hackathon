@@ -11,7 +11,7 @@ export const seedTasks: DailyTask[] = [
     title: "花 3 分鐘複習昨天學過的三個 ETF 觀念",
     estMinutes: 3,
     purpose: "趁記憶還新鮮時鞏固，隔天複習能大幅提升長期記憶。",
-    reward: "記憶卡工坊獲得 20 點建設值",
+    reward: "學習卡工坊獲得 20 點建設值",
     xp: 20,
     coins: 30,
     buildingId: "investing",

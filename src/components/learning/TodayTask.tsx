@@ -65,7 +65,7 @@ export function TodayTask({
         <p className="mt-1 text-sm text-muted-foreground">{task.purpose}</p>
 
         <div className="mt-3 rounded-xl bg-brand-sun/15 px-3 py-2 text-xs font-medium text-amber-700">
-          🏗️ 完成後：{task.reward}（+{task.xp} XP）
+          完成後：{task.reward}（+{task.xp} XP、+{task.coins} 金幣）
         </div>
 
         <div className="mt-4 flex gap-2">

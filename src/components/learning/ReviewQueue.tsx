@@ -15,7 +15,7 @@ export function ReviewQueue({ due }: { due: number }) {
           <div className="flex-1">
             <div className="text-sm font-semibold">待複習項目</div>
             <div className="text-xs text-muted-foreground">
-              {due} 張記憶卡等你喚醒記憶
+              {due} 張學習卡等你喚醒記憶
             </div>
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
