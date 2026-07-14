@@ -59,7 +59,7 @@ export function InteractiveCityV2({ buildings }: { buildings: Building[] }) {
   };
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-b from-sky-300 via-blue-200 to-green-100 overflow-hidden">
+    <div className="relative w-full h-full bg-gradient-to-b from-sky-300 via-blue-200 to-green-100 overflow-hidden">
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
@@ -301,27 +301,9 @@ export function InteractiveCityV2({ buildings }: { buildings: Building[] }) {
       </TransformWrapper>
 
       {/* 控制提示 */}
-      <div className="absolute bottom-4 left-4 bg-black/60 text-white px-4 py-2 rounded-lg text-sm">
-        🔍 滾輪縮放 | 拖動平移 | 點擊建築進入
+      <div className="absolute bottom-2 left-2 bg-black/60 text-white px-3 py-1 rounded text-xs z-40">
+        🔍 滾輪縮放 | 拖動平移 | 點擊進入
       </div>
-
-      {/* 重置缩放按钮 */}
-      <TransformWrapper
-        initialScale={0.8}
-        initialPositionX={-300}
-        initialPositionY={-200}
-        minScale={0.5}
-        maxScale={3}
-      >
-        {({ resetTransform }) => (
-          <button
-            onClick={() => resetTransform()}
-            className="absolute top-4 right-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg"
-          >
-            🏠 重置視圖
-          </button>
-        )}
-      </TransformWrapper>
     </div>
   );
 }
