@@ -15,6 +15,7 @@ import {
 import type { ReturnNotification } from "@/types";
 import { seedNotifications } from "@/data/notifications";
 import { useStore } from "@/lib/store";
+import { asset } from "@/lib/asset";
 
 type FilterId = "all" | "task" | "review" | "system";
 
@@ -93,7 +94,7 @@ export default function NotificationsPage() {
         <aside className="space-y-4">
           <section className="relative min-h-[210px] overflow-hidden rounded-[24px] border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-blue-100 p-6 shadow-sm">
             <div className="relative z-10 max-w-[200px]"><p className="text-xl font-black">小學伴</p><p className="mt-2 text-base font-semibold leading-7 text-slate-600">你有 {counts.all} 個新的學習提醒，挑一件最適合現在的開始吧！</p><button onClick={() => router.push("/tasks")} className="mt-5 flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-indigo-200">查看今日任務<ArrowRight className="h-4 w-4" /></button></div>
-            <div className="absolute bottom-4 right-4 h-28 w-28"><Image src="/assets/icons/ai-robot.png" alt="小學伴" fill sizes="112px" className="object-contain drop-shadow-xl" /></div>
+            <div className="absolute bottom-4 right-4 h-28 w-28"><Image src={asset("/assets/icons/ai-robot.png")} alt="小學伴" fill sizes="112px" className="object-contain drop-shadow-xl" /></div>
           </section>
 
           <section className="rounded-[24px] border border-white/80 bg-white/95 p-5 shadow-sm">
@@ -127,11 +128,11 @@ export default function NotificationsPage() {
               const ui = NOTIFICATION_UI[notification.id];
               const style = TONE_STYLE[ui.tone];
               const unread = unreadIds.has(notification.id);
-              return <article key={notification.id} className={`relative overflow-hidden rounded-[22px] border bg-gradient-to-r ${style.wash} to-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-5 ${unread ? "border-indigo-100" : "border-slate-200 opacity-80"}`}>
+              return <article key={notification.id} className={`relative overflow-hidden rounded-[22px] border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-5 ${unread ? `border-indigo-100 bg-gradient-to-r ${style.wash} to-white` : "border-slate-200 bg-slate-100/70"}`}>
                 <div className="grid items-center gap-4 sm:grid-cols-[64px_minmax(0,1fr)_auto]">
-                  <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/70 shadow-sm"><span className="relative h-11 w-11"><Image src={ui.img} alt="" fill sizes="44px" className="object-contain" /></span></span>
-                  <div className="min-w-0"><div className="flex flex-wrap items-center gap-x-2 gap-y-1"><h2 className="text-lg font-black sm:text-xl">{ui.title}</h2><span className="text-xs font-medium text-slate-400">{ui.time}</span>{unread && <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-rose-500" />}</div><p className="mt-1.5 text-base leading-7 text-slate-600">{notification.body}</p>{!unread && <div className="mt-3"><span className="flex items-center gap-1 text-[11px] font-bold text-slate-400"><Check className="h-3 w-3" />已讀</span></div>}</div>
-                  <div className="flex gap-2 sm:flex-col"><button onClick={() => openNotification(notification)} className={`flex min-w-[118px] flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-black transition sm:flex-none ${style.action}`}>{notification.cta}<ArrowRight className="h-4 w-4" /></button></div>
+                  <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/70 shadow-sm ${unread ? "" : "opacity-70"}`}><span className="relative h-11 w-11"><Image src={asset(ui.img)} alt="" fill sizes="44px" className={`object-contain ${unread ? "" : "grayscale"}`} /></span></span>
+                  <div className="min-w-0"><div className="flex flex-wrap items-center gap-x-2 gap-y-1"><h2 className={`text-lg font-black sm:text-xl ${unread ? "" : "text-slate-400"}`}>{ui.title}</h2><span className="text-xs font-medium text-slate-400">{ui.time}</span>{unread ? <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-rose-500" /> : <span className="flex items-center gap-1 text-[11px] font-bold text-slate-400"><Check className="h-3 w-3" />已讀</span>}</div><p className={`mt-1.5 text-base leading-7 ${unread ? "text-slate-600" : "text-slate-400"}`}>{notification.body}</p></div>
+                  <div className="flex gap-2 sm:flex-col"><button onClick={() => openNotification(notification)} className={`flex min-w-[118px] flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-black transition sm:flex-none ${unread ? style.action : "bg-slate-200/70 text-slate-500 hover:bg-slate-200"}`}>{notification.cta}<ArrowRight className="h-4 w-4" /></button></div>
                 </div>
               </article>;
             })}

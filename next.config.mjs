@@ -13,6 +13,8 @@ const nextConfig = {
   images: { unoptimized: true },
   // 讓每頁輸出 index.html，Pages 路由更穩定
   trailingSlash: true,
+  // 傳給前端，讓 asset() helper 為 public/ 圖片補上 basePath
+  env: { NEXT_PUBLIC_BASE_PATH: isGithubPages ? `/${repo}` : "" },
   ...(isGithubPages ? { basePath: `/${repo}`, assetPrefix: `/${repo}/` } : {}),
 };
 

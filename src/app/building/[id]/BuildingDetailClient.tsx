@@ -24,6 +24,7 @@ import { SuccessModal, type SuccessInfo } from "@/components/common/SuccessModal
 import { FlashcardsModal, HighlightsModal, NotesModal, QuizModal } from "@/components/review/ReviewModals";
 import { formatMinutes } from "@/lib/utils";
 import { BUILDING_ASSETS } from "@/lib/building-assets";
+import { asset } from "@/lib/asset";
 
 type ActiveTool = "quiz" | "flashcards" | "notes" | "highlights" | null;
 
@@ -61,22 +62,20 @@ export function BuildingDetailClient() {
   }, [state.flashcards, courses]);
   const tasks = useMemo(() => state.tasks.filter((task) => task.buildingId === categoryId).slice(0, 2), [state.tasks, categoryId]);
 
-  // 學習成效摘要：依實際學習資料，整理使用者在各類別學了什麼
-  const summary = useMemo(() => {
+  // 學習成效摘要：聚焦「學了什麼內容」而非投入時間，串成個人化的一段話
+  const summaryText = useMemo(() => {
     const learned = state.buildings.filter((b) => b.minutes > 0).sort((a, b) => b.minutes - a.minutes);
-    const lines = learned.slice(0, 3).map((b) => {
+    const phrases = learned.slice(0, 3).map((b) => {
       const recent = state.activity.find((a) => a.category === b.id);
       const courseName = recent?.title.match(/《([^》]+)》/)?.[1] ?? null;
-      return {
-        id: b.id,
-        name: b.name,
-        detail: courseName
-          ? `投入 ${formatMinutes(b.minutes)}、完成 ${b.chaptersDone} 章，最近學了「${courseName}」`
-          : `投入 ${formatMinutes(b.minutes)}、完成 ${b.chaptersDone} 章`,
-      };
+      return courseName ? `在${b.name}學了「${courseName}」` : `持續深耕${b.name}`;
     });
-    return { lines, categoryCount: learned.length };
-  }, [state.buildings, state.activity]);
+    const name = state.user.name;
+    if (phrases.length === 0) {
+      return `${name}，歡迎開始你的學習旅程！先從一堂最有興趣的課開始，AI 助教會陪你把學習變成長期習慣 💪`;
+    }
+    return `${name}，最近你的學習很有主題性 👏 你${phrases.join("、")}，這些內容正一點一點長成你自己的能力。想再深化哪個主題，AI 助教都能幫你安排下一步！`;
+  }, [state.buildings, state.activity, state.user.name]);
 
   if (!building) {
     return <div className="building-detail-page grid min-h-[60vh] place-items-center"><button className="rounded-xl bg-indigo-600 px-5 py-3 font-bold text-white" onClick={() => router.push("/")}>回到城市</button></div>;
@@ -128,7 +127,7 @@ export function BuildingDetailClient() {
                 { img: "/assets/icons/clock.png", label: "學習時間", value: formatMinutes(building.minutes), sub: "累積學習時間" },
                 { img: "/assets/badges/course-complete.png", label: "完成章節", value: `${completedChapters} / ${chapterGoal}`, sub: "已完成章節" },
                 { img: "/assets/badges/level-badge.png", label: "目前等級", value: `Lv.${building.level}`, sub: building.level >= 4 ? "進階學習者" : "持續成長中" },
-              ].map(({ img, label, value, sub }) => <div key={label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"><div className="relative mb-3 h-12 w-12"><Image src={img} alt={label} fill sizes="48px" className="object-contain" /></div><div className="text-xs font-bold text-slate-500">{label}</div><div className="mt-1 text-lg font-black">{value}</div><div className="mt-1 text-[11px] text-slate-400">{sub}</div></div>)}
+              ].map(({ img, label, value, sub }) => <div key={label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"><div className="relative mb-3 h-12 w-12"><Image src={asset(img)} alt={label} fill sizes="48px" className="object-contain" /></div><div className="text-xs font-bold text-slate-500">{label}</div><div className="mt-1 text-lg font-black">{value}</div><div className="mt-1 text-[11px] text-slate-400">{sub}</div></div>)}
             </div>
             <div className="mt-5 rounded-2xl border border-slate-100 p-5">
               <div className="flex items-end justify-between gap-3 text-xs font-semibold text-slate-600"><span>{toNext === null ? "已達目前最高等級" : `距離下一級還差 ${formatMinutes(toNext)}`}</span><span>{building.minutes.toLocaleString()} / {threshold?.toLocaleString() ?? building.minutes.toLocaleString()} 學習值</span></div>
@@ -142,7 +141,7 @@ export function BuildingDetailClient() {
             <div className="rounded-[22px] border border-white/80 bg-white/95 p-5 shadow-sm sm:p-6">
               <div className="mb-4 flex items-center gap-3"><Sparkles className="h-5 w-5 text-indigo-500" /><h2 className="text-lg font-black">複習工具</h2><span className="text-xs text-slate-400">善用工具，加強學習效果！</span></div>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {TOOL_CARDS.map(({ tool, img, title, description, action }) => <button key={tool} onClick={() => setActiveTool(tool)} className="group rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg"><span className="relative mx-auto block h-16 w-16 transition duration-200 group-hover:scale-110"><Image src={img} alt={title} fill sizes="64px" className="object-contain" /></span><h3 className="mt-3 font-black">{title}</h3><p className="mt-2 whitespace-pre-line text-xs leading-5 text-slate-500">{description}</p><span className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-slate-200 py-2 text-xs font-bold text-indigo-600 transition group-hover:bg-indigo-50">{action}<ArrowRight className="h-3.5 w-3.5" /></span></button>)}
+                {TOOL_CARDS.map(({ tool, img, title, description, action }) => <button key={tool} onClick={() => setActiveTool(tool)} className="group rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg"><span className="relative mx-auto block h-16 w-16 transition duration-200 group-hover:scale-110"><Image src={asset(img)} alt={title} fill sizes="64px" className="object-contain" /></span><h3 className="mt-3 font-black">{title}</h3><p className="mt-2 whitespace-pre-line text-xs leading-5 text-slate-500">{description}</p><span className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-slate-200 py-2 text-xs font-bold text-indigo-600 transition group-hover:bg-indigo-50">{action}<ArrowRight className="h-3.5 w-3.5" /></span></button>)}
               </div>
             </div>
 
@@ -164,11 +163,9 @@ export function BuildingDetailClient() {
             <div className="relative min-h-[180px] overflow-hidden rounded-[22px] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-100 p-5 shadow-sm">
               <div className="relative z-10">
                 <div className="flex items-center gap-2"><Bot className="h-5 w-5 text-blue-600" /><h2 className="font-black">AI 助教的學習成效摘要</h2></div>
-                <p className="mt-3 max-w-[74%] text-xs font-semibold leading-6 text-slate-700">{state.user.name}，你已經在學習城市累積 <strong className="text-indigo-700">{formatMinutes(state.user.totalMinutes)}</strong>、完成 <strong className="text-indigo-700">{state.user.coursesCompleted} 堂課</strong>，橫跨 <strong className="text-indigo-700">{summary.categoryCount}</strong> 個學習領域，很有節奏 👏</p>
-                {summary.lines.length > 0 && <ul className="mt-3 space-y-2 text-xs leading-5 text-slate-600">{summary.lines.map((line) => <li key={line.id}>・<strong className="text-slate-800">{line.name}</strong>：{line.detail}</li>)}</ul>}
-                <p className="mt-3 max-w-[74%] text-xs font-medium leading-5 text-slate-500">在「{building.name}」再學 {toNext === null ? "0" : formatMinutes(toNext)} 就能升級，繼續保持！</p>
+                <p className="mt-3 max-w-[80%] text-sm font-semibold leading-7 text-slate-700">{summaryText}</p>
               </div>
-              <div className="pointer-events-none absolute bottom-3 right-3 h-20 w-20"><Image src="/assets/icons/ai-robot.png" alt="AI 助教" fill sizes="80px" className="object-contain drop-shadow-lg" /></div>
+              <div className="pointer-events-none absolute bottom-3 right-3 h-20 w-20"><Image src={asset("/assets/icons/ai-robot.png")} alt="AI 助教" fill sizes="80px" className="object-contain drop-shadow-lg" /></div>
             </div>
           </aside>
         </section>
