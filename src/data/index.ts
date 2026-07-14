@@ -7,17 +7,17 @@ import { seedActivity } from "./activity";
 import { generateDailyTasks } from "@/lib/ai-coach";
 
 export const seedUser: User = {
-  name: "小魚",
-  level: 7,
-  xp: 1280,
-  coins: 12450,
-  totalMinutes: 1280,
-  weekMinutes: 95,
+  name: "James",
+  level: 5,
+  xp: 940,
+  coins: 2680,
+  totalMinutes: 685,
+  weekMinutes: 142,
   coursesCompleted: 3,
-  coursesInProgress: 4,
-  flashcardsDue: 12,
-  quizzesDone: 38,
-  accuracy: 78,
+  coursesInProgress: 8,
+  flashcardsDue: 8,
+  quizzesDone: 14,
+  accuracy: 82,
 };
 
 /** A fresh, complete AppState. Cloned on every reset so seeds stay immutable. */

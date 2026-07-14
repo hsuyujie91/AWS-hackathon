@@ -20,6 +20,7 @@ import {
 import { useStore } from "@/lib/store";
 import { BUILDING_ASSETS } from "@/lib/building-assets";
 import type { ActivityEntry, ActivityType, CategoryId } from "@/types";
+import { reviewHref } from "@/lib/routes";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -100,7 +101,7 @@ export default function CalendarPage() {
                     </div>
                     <div className="mt-auto pt-3 text-center">
                       {dayActivities.length === 0 && <p className="mb-3 text-[11px] text-slate-400">今天還沒有紀錄</p>}
-                      <button className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600"><FilePlus2 className="h-3.5 w-3.5" />補寫學習筆記</button>
+                      <Link href={reviewHref("notes", dayActivities[0]?.category)} className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600"><FilePlus2 className="h-3.5 w-3.5" />補寫學習筆記</Link>
                     </div>
                   </article>
                 );
@@ -110,13 +111,13 @@ export default function CalendarPage() {
         </section>
 
         <section className="rounded-[22px] border border-white/80 bg-white/95 p-5 shadow-sm sm:p-6">
-          <div className="mb-4 flex items-end justify-between"><div><div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-indigo-500" /><h2 className="text-lg font-black">精華回顧</h2></div><p className="mt-1 text-xs text-slate-400">快速複習本週重點內容</p></div><button className="hidden items-center gap-1 text-xs font-bold text-indigo-600 sm:flex">查看更多<ArrowRight className="h-4 w-4" /></button></div>
+          <div className="mb-4 flex items-end justify-between"><div><div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-indigo-500" /><h2 className="text-lg font-black">精華回顧</h2></div><p className="mt-1 text-xs text-slate-400">快速複習本週重點內容</p></div><Link href={reviewHref("highlights")} className="hidden items-center gap-1 text-xs font-bold text-indigo-600 sm:flex">查看更多<ArrowRight className="h-4 w-4" /></Link></div>
           <div className="grid gap-3 lg:grid-cols-3">
             {displayHighlights.map((activity, index) => {
               const category = activity.category ?? "investing";
               const building = state.buildings.find((item) => item.id === category);
               const accent = ["from-indigo-500 to-blue-600", "from-violet-500 to-fuchsia-600", "from-sky-500 to-cyan-600"][index % 3];
-              return <article key={activity.id} className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white sm:grid-cols-[180px_1fr] lg:grid-cols-[42%_1fr]"><div className={`relative min-h-[145px] bg-gradient-to-br ${accent}`}><Image src={BUILDING_ASSETS[category as CategoryId]} alt="" fill sizes="220px" className="object-contain p-3 drop-shadow-lg" /><span className="absolute left-3 top-3 rounded-full bg-slate-900/70 px-2 py-1 text-[10px] font-bold text-white">{activity.minutes ?? 60} 分</span></div><div className="flex flex-col p-4"><span className="text-[10px] font-bold text-indigo-500">{building?.category ?? "學習精華"}</span><h3 className="mt-2 line-clamp-2 text-sm font-black">{activity.title.replace("觀看《", "").replace("》", "")}</h3><p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">整理本週重要觀念，利用短時間重新掌握學習重點。</p><button className="mt-auto flex w-fit items-center gap-1 rounded-lg border border-indigo-200 px-3 py-1.5 text-xs font-bold text-indigo-600">快速回顧<ArrowRight className="h-3.5 w-3.5" /></button></div></article>;
+              return <article key={activity.id} className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white sm:grid-cols-[180px_1fr] lg:grid-cols-[42%_1fr]"><div className={`relative min-h-[145px] bg-gradient-to-br ${accent}`}><Image src={BUILDING_ASSETS[category as CategoryId]} alt="" fill sizes="220px" className="object-contain p-3 drop-shadow-lg" /><span className="absolute left-3 top-3 rounded-full bg-slate-900/70 px-2 py-1 text-[10px] font-bold text-white">{activity.minutes ?? 60} 分</span></div><div className="flex flex-col p-4"><span className="text-[10px] font-bold text-indigo-500">{building?.category ?? "學習精華"}</span><h3 className="mt-2 line-clamp-2 text-sm font-black">{activity.title.replace("觀看《", "").replace("》", "")}</h3><p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">整理本週重要觀念，利用短時間重新掌握學習重點。</p><Link href={reviewHref("highlights", category as CategoryId)} className="mt-auto flex w-fit items-center gap-1 rounded-lg border border-indigo-200 px-3 py-1.5 text-xs font-bold text-indigo-600">快速回顧<ArrowRight className="h-3.5 w-3.5" /></Link></div></article>;
             })}
           </div>
         </section>

@@ -64,7 +64,7 @@ export function SuccessModal({
 
           <div className="mt-5 flex gap-2">
             <Button variant="outline" className="flex-1" onClick={onClose}>
-              回到城市
+              關閉
             </Button>
             {onAnother && (
               <Button className="flex-1" onClick={onAnother}>

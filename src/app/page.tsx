@@ -23,8 +23,8 @@ export default function HomePage() {
       <section className="homepage-hero grid gap-5 p-4 sm:p-6 lg:grid-cols-[310px_minmax(0,1fr)] lg:gap-6 lg:p-8">
         <aside className="flex flex-col gap-4">
           <div className="px-1 py-2 lg:py-5">
-            <p className="text-xs font-bold text-indigo-500">2026 年 7 月 14 日 · 星期二</p>
-            <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">早安，小魚 <span>👋</span></h1>
+            <p className="text-xs font-bold text-indigo-500">2026 年 7 月 15 日 · 星期三</p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">早安，{state.user.name}</h1>
             <p className="mt-2 text-sm font-medium text-slate-500">你今天的學習城市已準備好囉！</p>
           </div>
 
@@ -33,7 +33,7 @@ export default function HomePage() {
               <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-200"><Bot className="h-8 w-8" /></span>
               <div><p className="text-sm font-black text-slate-900">AI 助教小學伴</p><p className="mt-1 text-[11px] font-medium text-slate-500">專屬學習目標已更新</p></div>
             </div>
-            <p className="mt-5 rounded-2xl bg-indigo-50 p-4 text-xs font-semibold leading-6 text-slate-600">我根據你昨天的學習紀錄，準備了 4 個專屬任務給你！</p>
+            <p className="mt-5 rounded-2xl bg-indigo-50 p-4 text-xs font-semibold leading-6 text-slate-600">我根據你的觀看進度、複習狀況與播放中斷紀錄，準備了 {state.tasks.length} 個專屬任務。</p>
             <Link href="/tasks" className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3 text-xs font-black text-white shadow-lg shadow-indigo-200">查看今日任務 <ArrowRight className="h-4 w-4" /></Link>
           </div>
 

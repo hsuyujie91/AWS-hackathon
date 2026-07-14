@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
 import { Sparkles } from "lucide-react";
-import type { Course } from "@/types";
+import type { CategoryId, Course } from "@/types";
 import { useStore } from "@/lib/store";
 import { buildingLevelFromMinutes } from "@/lib/xp";
 import { recommendNextReview } from "@/lib/ai";
@@ -24,6 +24,15 @@ export default function CoursesPage() {
   const [filter, setFilter] = useState<Filter>("in-progress");
   const [success, setSuccess] = useState<SuccessInfo | null>(null);
   const [reco, setReco] = useState<string>("");
+  const [category, setCategory] = useState<CategoryId | "all">("all");
+  const [sourceTaskId, setSourceTaskId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requestedCategory = params.get("category") as CategoryId | null;
+    if (requestedCategory && state.buildings.some((building) => building.id === requestedCategory)) setCategory(requestedCategory);
+    setSourceTaskId(params.get("task"));
+  }, [state.buildings]);
 
   useEffect(() => {
     recommendNextReview(state.courses).then(setReco);
@@ -31,19 +40,24 @@ export default function CoursesPage() {
 
   const list = useMemo(() => {
     if (filter === "completed")
-      return state.courses.filter((c) => c.status === "completed");
+      return state.courses.filter((c) => c.status === "completed" && (category === "all" || c.category === category));
     if (filter === "review")
       return state.courses.filter(
-        (c) => c.status === "in-progress" && c.progress >= 50,
+        (c) => c.status === "in-progress" && c.progress >= 50 && (category === "all" || c.category === category),
       );
-    return state.courses.filter((c) => c.status === "in-progress");
-  }, [state.courses, filter]);
+    return state.courses.filter((c) => c.status === "in-progress" && (category === "all" || c.category === category));
+  }, [state.courses, filter, category]);
 
   function watch(course: Course) {
     const b = state.buildings.find((x) => x.id === course.category)!;
     const mins = Math.min(course.minutesLeft || 5, 5);
     const leveledUp = buildingLevelFromMinutes(b.minutes + mins) > b.level;
     dispatch({ type: "WATCH_COURSE", courseId: course.id, minutes: mins });
+    const sourceTask = state.tasks.find((task) => task.id === sourceTaskId && !task.done && task.kind === "watch");
+    if (sourceTask) {
+      dispatch({ type: "COMPLETE_TASK", taskId: sourceTask.id });
+      setSourceTaskId(null);
+    }
     setSuccess({
       xp: mins,
       buildingName: b.name,
@@ -91,6 +105,11 @@ export default function CoursesPage() {
             {f.label}
           </button>
         ))}
+      </div>
+
+      <div className="no-scrollbar flex gap-2 overflow-x-auto">
+        <button onClick={() => setCategory("all")} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold ${category === "all" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500"}`}>全部領域</button>
+        {state.buildings.map((building) => <button key={building.id} onClick={() => setCategory(building.id)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold ${category === building.id ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"}`}>{building.category}</button>)}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">

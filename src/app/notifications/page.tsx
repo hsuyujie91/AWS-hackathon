@@ -15,16 +15,18 @@ import {
 import type { ReturnNotification } from "@/types";
 import { seedNotifications } from "@/data/notifications";
 import { useStore } from "@/lib/store";
+import { reviewHref } from "@/lib/routes";
 import { asset } from "@/lib/asset";
 
 type FilterId = "all" | "task" | "review" | "system";
 
-const TARGET_ROUTE: Record<ReturnNotification["target"], string> = {
-  resume: "/courses",
-  flashcards: "/review",
-  highlight: "/review",
-  task: "/tasks",
-};
+function notificationHref(notification: ReturnNotification) {
+  if (notification.id === "n5") return reviewHref("quiz", "investing");
+  if (notification.target === "flashcards") return reviewHref("flashcards", "investing");
+  if (notification.target === "highlight") return reviewHref("highlights", "investing");
+  if (notification.target === "task") return "/tasks";
+  return "/courses?category=investing";
+}
 
 const NOTIFICATION_UI: Record<string, {
   title: string;
@@ -85,7 +87,7 @@ export default function NotificationsPage() {
     const wasUnread = unreadIds.has(notification.id);
     markRead(notification.id);
     if (wasUnread && notification.tier !== "short") dispatch({ type: "COMEBACK_BONUS" });
-    router.push(TARGET_ROUTE[notification.target]);
+    router.push(notificationHref(notification));
   }
 
   return (

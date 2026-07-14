@@ -21,12 +21,10 @@ import { useStore } from "@/lib/store";
 import { minutesToNextLevel, nextLevelThreshold } from "@/lib/xp";
 import { Progress } from "@/components/ui/progress";
 import { SuccessModal, type SuccessInfo } from "@/components/common/SuccessModal";
-import { FlashcardsModal, HighlightsModal, NotesModal, QuizModal } from "@/components/review/ReviewModals";
 import { formatMinutes } from "@/lib/utils";
 import { BUILDING_ASSETS } from "@/lib/building-assets";
 import { asset } from "@/lib/asset";
-
-type ActiveTool = "quiz" | "flashcards" | "notes" | "highlights" | null;
+import { reviewHref, taskHref } from "@/lib/routes";
 
 const BUILDING_COPY: Record<CategoryId, { tagline: string; description: string; suggestion: string }> = {
   investing: { tagline: "學習理財知識，累積你的財富能力！", description: "在這裡學習投資策略、\n資產配置與風險管理，\n打造你的財富未來！", suggestion: "今天適合先複習「ETF 風險分散」" },
@@ -51,15 +49,9 @@ export function BuildingDetailClient() {
   const router = useRouter();
   const { state, dispatch } = useStore();
   const [success, setSuccess] = useState<SuccessInfo | null>(null);
-  const [activeTool, setActiveTool] = useState<ActiveTool>(null);
   const building = state.buildings.find((item) => item.id === params.id);
   const categoryId = params.id as CategoryId;
   const courses = useMemo(() => state.courses.filter((course) => course.category === categoryId), [state.courses, categoryId]);
-  const quizzes = useMemo(() => state.quizzes.filter((quiz) => quiz.category === categoryId), [state.quizzes, categoryId]);
-  const flashcards = useMemo(() => {
-    const courseIds = new Set(courses.map((course) => course.id));
-    return state.flashcards.filter((card) => courseIds.has(card.courseId));
-  }, [state.flashcards, courses]);
   const tasks = useMemo(() => state.tasks.filter((task) => task.buildingId === categoryId).slice(0, 2), [state.tasks, categoryId]);
 
   // 學習成效摘要：聚焦「學了什麼內容」而非投入時間，串成個人化的一段話
@@ -82,7 +74,7 @@ export function BuildingDetailClient() {
   }
 
   const copy = BUILDING_COPY[building.id];
-  const currentCourse = courses.find((course) => course.status === "in-progress") ?? courses[0];
+  const currentCourse = courses.find((course) => course.status === "in-progress" && course.progress > 0);
   const toNext = minutesToNextLevel(building.minutes);
   const threshold = nextLevelThreshold(building.minutes);
   const progress = threshold ? Math.min(100, (building.minutes / threshold) * 100) : 100;
@@ -141,23 +133,23 @@ export function BuildingDetailClient() {
             <div className="rounded-[22px] border border-white/80 bg-white/95 p-5 shadow-sm sm:p-6">
               <div className="mb-4 flex items-center gap-3"><Sparkles className="h-5 w-5 text-indigo-500" /><h2 className="text-lg font-black">複習工具</h2><span className="text-xs text-slate-400">善用工具，加強學習效果！</span></div>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {TOOL_CARDS.map(({ tool, img, title, description, action }) => <button key={tool} onClick={() => setActiveTool(tool)} className="group rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg"><span className="relative mx-auto block h-16 w-16 transition duration-200 group-hover:scale-110"><Image src={asset(img)} alt={title} fill sizes="64px" className="object-contain" /></span><h3 className="mt-3 font-black">{title}</h3><p className="mt-2 whitespace-pre-line text-xs leading-5 text-slate-500">{description}</p><span className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-slate-200 py-2 text-xs font-bold text-indigo-600 transition group-hover:bg-indigo-50">{action}<ArrowRight className="h-3.5 w-3.5" /></span></button>)}
+                {TOOL_CARDS.map(({ tool, img, title, description, action }) => <button key={tool} onClick={() => router.push(reviewHref(tool, building.id))} className="group rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg"><span className="relative mx-auto block h-16 w-16 transition duration-200 group-hover:scale-110"><Image src={asset(img)} alt={title} fill sizes="64px" className="object-contain" /></span><h3 className="mt-3 font-black">{title}</h3><p className="mt-2 whitespace-pre-line text-xs leading-5 text-slate-500">{description}</p><span className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-slate-200 py-2 text-xs font-bold text-indigo-600 transition group-hover:bg-indigo-50">{action}<ArrowRight className="h-3.5 w-3.5" /></span></button>)}
               </div>
             </div>
 
             <div className="rounded-[22px] border border-white/80 bg-white/95 p-5 shadow-sm sm:p-6">
               <div className="mb-3 flex items-center gap-3"><Target className="h-5 w-5 text-rose-500" /><h2 className="text-lg font-black">學習任務</h2><span className="text-xs text-slate-400">完成任務，獲得更多經驗值！</span></div>
               <div className="space-y-2">
-                {(tasks.length ? tasks : [{ id: "review", title: `複習 ${building.category} 學習卡`, purpose: "鞏固重要概念，加深記憶", xp: 40, done: false, kind: "review" as const, estMinutes: 5, reward: "", buildingId: building.id }]).map((task) => <div key={task.id} className="grid items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 p-3 sm:grid-cols-[1fr_120px_100px]"><div className="flex items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-100 text-indigo-600"><CheckCircle2 className="h-5 w-5" /></span><div><div className="text-sm font-black">{task.title}</div><div className="text-[11px] text-slate-400">{task.purpose}</div></div></div><div className="flex items-center gap-2 text-sm font-black text-slate-700"><Medal className="h-5 w-5 text-amber-500" />+{task.xp} XP</div><button disabled={task.done} onClick={() => dispatch({ type: "COMPLETE_TASK", taskId: task.id })} className="rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-3 py-2 text-xs font-bold text-white disabled:bg-slate-300">{task.done ? "已完成" : "去完成"}</button></div>)}
+                {tasks.length ? tasks.map((task) => <div key={task.id} className="grid items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 p-3 sm:grid-cols-[1fr_120px_100px]"><div className="flex items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-100 text-indigo-600"><CheckCircle2 className="h-5 w-5" /></span><div><div className="text-sm font-black">{task.title}</div><div className="text-[11px] text-slate-400">與今日個人化任務同步</div></div></div><div className="flex items-center gap-2 text-sm font-black text-slate-700"><Medal className="h-5 w-5 text-amber-500" />+{task.xp} XP</div><button disabled={task.done} onClick={() => router.push(taskHref(building.id, task.id))} className="rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-3 py-2 text-xs font-bold text-white disabled:bg-slate-300">{task.done ? "已完成" : "前往任務"}</button></div>) : <div className="rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-500">今天沒有這個領域的任務，可到每日任務查看 AI 安排。</div>}
               </div>
-              <button className="mx-auto mt-4 flex items-center gap-1 text-xs font-bold text-slate-400">查看全部任務<ChevronDown className="h-4 w-4" /></button>
+              <button onClick={() => router.push(taskHref(building.id))} className="mx-auto mt-4 flex items-center gap-1 text-xs font-bold text-indigo-600">查看全部任務<ChevronDown className="h-4 w-4" /></button>
             </div>
           </div>
 
           <aside className="space-y-4">
             <div className="rounded-[22px] border border-white/80 bg-white/95 p-5 shadow-sm">
               <div className="mb-4 flex items-center gap-3"><Play className="h-5 w-5 fill-blue-500 text-blue-500" /><h2 className="text-lg font-black">接續播放</h2><span className="text-xs text-slate-400">從上次離開的地方繼續學習吧！</span></div>
-              {currentCourse ? <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-3"><div className="flex gap-3"><div className="relative h-28 w-32 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-700"><Image src={BUILDING_ASSETS[building.id]} alt="" fill sizes="128px" className="object-contain p-2 opacity-90" /></div><div className="min-w-0 flex-1"><span className="rounded-full bg-white px-2 py-1 text-[10px] font-bold text-indigo-600">{building.category}系列</span><h3 className="mt-3 truncate font-black">{currentCourse.title}</h3><p className="mt-2 truncate text-xs text-slate-500">{currentCourse.resumePoint ?? `剩下 ${currentCourse.minutesLeft} 分鐘`}</p><Progress value={currentCourse.progress} className="mt-3 h-2 bg-white" /></div></div><button onClick={() => watch(currentCourse)} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3 text-sm font-bold text-white"><Play className="h-4 w-4 fill-current" />繼續學習</button></div> : <div className="rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">目前沒有進行中的課程</div>}
+              {currentCourse ? <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-3"><div className="flex gap-3"><div className="relative h-28 w-32 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-700"><Image src={BUILDING_ASSETS[building.id]} alt="" fill sizes="128px" className="object-contain p-2 opacity-90" /></div><div className="min-w-0 flex-1"><span className="rounded-full bg-white px-2 py-1 text-[10px] font-bold text-indigo-600">{building.category}系列</span><h3 className="mt-3 truncate font-black">{currentCourse.title}</h3><p className="mt-2 truncate text-xs text-slate-500">{currentCourse.resumePoint ?? `剩下 ${currentCourse.minutesLeft} 分鐘`}</p><Progress value={currentCourse.progress} className="mt-3 h-2 bg-white" /></div></div><button onClick={() => watch(currentCourse)} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3 text-sm font-bold text-white"><Play className="h-4 w-4 fill-current" />繼續學習</button></div> : <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 to-indigo-50 p-4 text-center"><div className="relative mx-auto h-28 w-32"><Image src={BUILDING_ASSETS[building.id]} alt="" fill sizes="128px" className="object-contain drop-shadow-md" /></div><h3 className="mt-2 font-black">開始新的{building.category}學習</h3><p className="mt-1 text-xs leading-5 text-slate-500">目前沒有可接續的進度，挑一門相關課程開始探索吧。</p><button onClick={() => router.push(`/courses?category=${building.id}`)} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-3 text-sm font-bold text-white"><Play className="h-4 w-4 fill-current" />開始新學習</button></div>}
             </div>
 
             <div className="relative min-h-[180px] overflow-hidden rounded-[22px] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-100 p-5 shadow-sm">
@@ -172,10 +164,6 @@ export function BuildingDetailClient() {
       </div>
 
       <SuccessModal info={success} onClose={() => setSuccess(null)} />
-      {activeTool === "quiz" && <QuizModal quizzes={quizzes} answeredQuizIds={state.answeredQuizIds} onAnswer={(quizId, correct) => dispatch({ type: "ANSWER_QUIZ", quizId, correct })} onClose={() => setActiveTool(null)} />}
-      {activeTool === "flashcards" && <FlashcardsModal flashcards={flashcards} onClose={() => setActiveTool(null)} />}
-      {activeTool === "notes" && <NotesModal buildingName={building.name} notes={state.notes} onAddNote={(note) => dispatch({ type: "ADD_NOTE", note, category: building.id })} onClose={() => setActiveTool(null)} />}
-      {activeTool === "highlights" && <HighlightsModal courses={courses} onClose={() => setActiveTool(null)} />}
     </div>
   );
 }

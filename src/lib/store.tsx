@@ -13,7 +13,7 @@ import type {
   CategoryId,
   Familiarity,
 } from "@/types";
-import { createInitialState, seedBuildings, seedQuizzes } from "@/data";
+import { createInitialState, seedBuildings, seedCourses, seedQuizzes } from "@/data";
 import {
   buildingLevelFromMinutes,
   levelFromXp,
@@ -37,6 +37,8 @@ type Action =
 
 /** Recompute derived fields (user level, building levels) after any change. */
 function recompute(state: AppState): AppState {
+  const existingCourses = new Map((state.courses ?? []).map((course) => [course.id, course]));
+  const courses = seedCourses.map((seed) => ({ ...seed, ...(existingCourses.get(seed.id) ?? {}) }));
   const buildings = state.buildings.map((b) => {
     const currentMetadata = seedBuildings.find((seed) => seed.id === b.id);
     return {
@@ -64,10 +66,14 @@ function recompute(state: AppState): AppState {
         ? state.quizzes
         : seedQuizzes,
     answeredQuizIds: state.answeredQuizIds ?? [],
+    courses,
     buildings,
     user: {
       ...state.user,
+      name: "James",
       coins: state.user.coins ?? 0,
+      coursesCompleted: courses.filter((course) => course.status === "completed").length,
+      coursesInProgress: courses.filter((course) => course.status === "in-progress").length,
       level: levelFromXp(state.user.xp),
     },
   };
@@ -120,8 +126,6 @@ function reducer(state: AppState, action: Action): AppState {
         ...next,
         user: { ...next.user, coins: next.user.coins + task.coins },
       };
-      // A task worth N xp represents ~estMinutes of learning for its building.
-      next = growBuilding(next, task.buildingId, task.estMinutes);
       next = {
         ...next,
         tasks: next.tasks.map((t) =>
@@ -132,7 +136,7 @@ function reducer(state: AppState, action: Action): AppState {
         id: `act-${Date.now()}`,
         date: new Date().toISOString().slice(0, 10),
         type: "task",
-        title: `完成任務：${task.title}`,
+            title: `完成任務：${task.title}（+${task.xp} XP、+${task.coins} 金幣）`,
         category: task.buildingId,
       });
       return recompute(next);
