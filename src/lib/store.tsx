@@ -20,7 +20,8 @@ import {
   XP_RULES,
 } from "@/lib/xp";
 
-const STORAGE_KEY = "learning-city-state-v2";
+// v3：獎勵數值改版（XP 為 5 的倍數、金幣尾數為 0），換 key 讓舊存檔直接改用新種子。
+const STORAGE_KEY = "learning-city-state-v3";
 
 // ---------------------------------------------------------------------------
 // Actions
@@ -176,7 +177,7 @@ function reducer(state: AppState, action: Action): AppState {
 
     case "ANSWER_QUIZ": {
       if ((state.answeredQuizIds ?? []).includes(action.quizId)) return state;
-      let next = addXp(state, action.correct ? XP_RULES.dailyQuestion : 2);
+      let next = addXp(state, action.correct ? XP_RULES.dailyQuestion : 5);
       const quizzesDone = next.user.quizzesDone + 1;
       // Rolling accuracy estimate for the demo.
       const totalCorrect =

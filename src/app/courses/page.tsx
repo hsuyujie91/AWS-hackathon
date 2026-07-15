@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import type { CategoryId, Course } from "@/types";
 import { useStore } from "@/lib/store";
-import { buildingLevelFromMinutes } from "@/lib/xp";
+import { buildingLevelFromMinutes, XP_RULES } from "@/lib/xp";
 import { recommendNextReview } from "@/lib/ai";
 import { CourseCard } from "@/components/courses/CourseCard";
 import { SuccessModal, type SuccessInfo } from "@/components/common/SuccessModal";
@@ -59,7 +59,7 @@ export default function CoursesPage() {
       setSourceTaskId(null);
     }
     setSuccess({
-      xp: mins,
+      xp: mins * XP_RULES.watchPerMinute,
       buildingName: b.name,
       leveledUp,
       message: `模擬觀看《${course.title}》${mins} 分鐘。`,

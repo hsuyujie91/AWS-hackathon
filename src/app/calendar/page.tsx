@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  FilePlus2,
   NotebookPen,
   Play,
   RotateCcw,
@@ -99,10 +98,7 @@ export default function CalendarPage() {
                         return <div key={activity.id} className="rounded-xl border border-slate-100 bg-white/90 p-2.5"><div className="flex items-start gap-2"><span className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg ${meta.className}`}><Icon className="h-3.5 w-3.5" /></span><div className="min-w-0"><p className="text-[10px] font-bold text-slate-500">{meta.label}</p><p className="mt-0.5 line-clamp-2 text-[11px] font-bold leading-4">{activity.title}</p></div></div>{isCurrent && <p className="mt-2 text-right text-[10px] font-black text-indigo-600">+{meta.xp} XP</p>}</div>;
                       })}
                     </div>
-                    <div className="mt-auto pt-3 text-center">
-                      {dayActivities.length === 0 && <p className="mb-3 text-[11px] text-slate-400">今天還沒有紀錄</p>}
-                      <Link href={reviewHref("notes", dayActivities[0]?.category)} className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600"><FilePlus2 className="h-3.5 w-3.5" />補寫學習筆記</Link>
-                    </div>
+                    {dayActivities.length === 0 && <p className="mt-auto pt-3 text-center text-[11px] text-slate-400">今天還沒有紀錄</p>}
                   </article>
                 );
               })}

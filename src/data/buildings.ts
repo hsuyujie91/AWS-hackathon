@@ -12,7 +12,7 @@ export const seedBuildings: Building[] = [
     color: "#6ba3d6",
     unlocked: true,
     level: 3,
-    minutes: 340,
+    minutes: 355,
     chaptersDone: 7,
     lastCourse: "小資族 ETF 投資入門",
   },
