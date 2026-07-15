@@ -90,7 +90,7 @@ export function InteractiveCity({
               style={{ bottom: `calc(100% + ${8 + (pos.labelOffset ?? 0)}px)` }}
             >
               {building.name}
-              {building.level > 1 ? (
+              {building.unlocked ? (
                 <span className="rounded-md bg-sky-100 px-1.5 py-0.5 text-[9px] font-extrabold text-sky-700">
                   Lv.{building.level}
                 </span>

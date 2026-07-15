@@ -21,11 +21,13 @@ import { asset } from "@/lib/asset";
 type FilterId = "all" | "task" | "review" | "system";
 
 function notificationHref(notification: ReturnNotification) {
-  if (notification.id === "n5") return reviewHref("quiz", "investing");
-  if (notification.target === "flashcards") return reviewHref("flashcards", "investing");
-  if (notification.target === "highlight") return reviewHref("highlights", "investing");
+  const category = notification.category ?? "investing";
+  if (notification.target === "quiz") return reviewHref("quiz", category);
+  if (notification.target === "notes") return reviewHref("notes", category);
+  if (notification.target === "flashcards") return reviewHref("flashcards", category);
+  if (notification.target === "highlight") return reviewHref("highlights", category);
   if (notification.target === "task") return "/tasks";
-  return "/courses?category=investing";
+  return `/courses?category=${category}`;
 }
 
 const NOTIFICATION_UI: Record<string, {
@@ -86,7 +88,7 @@ export default function NotificationsPage() {
   function openNotification(notification: ReturnNotification) {
     const wasUnread = unreadIds.has(notification.id);
     markRead(notification.id);
-    if (wasUnread && notification.tier !== "short") dispatch({ type: "COMEBACK_BONUS" });
+    if (wasUnread && notification.tier !== "short") dispatch({ type: "COMEBACK_BONUS", sourceId: notification.id });
     router.push(notificationHref(notification));
   }
 

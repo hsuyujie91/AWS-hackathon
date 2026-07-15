@@ -64,9 +64,9 @@ export function BuildingDetailClient() {
     });
     const name = state.user.name;
     if (phrases.length === 0) {
-      return `${name}，歡迎開始你的學習旅程！先從一堂最有興趣的課開始，AI 助教會陪你把學習變成長期習慣 💪`;
+      return `${name}，歡迎開始你的學習旅程！先從一堂最有興趣的課開始，AI 助教會陪你把學習變成長期習慣。`;
     }
-    return `${name}，最近你的學習很有主題性 👏 你${phrases.join("、")}，這些內容正一點一點長成你自己的能力。想再深化哪個主題，AI 助教都能幫你安排下一步！`;
+    return `${name}，最近你的學習很有主題性。你${phrases.join("、")}，這些內容正一點一點長成你自己的能力。想再深化哪個主題，AI 助教都能幫你安排下一步！`;
   }, [state.buildings, state.activity, state.user.name]);
 
   if (!building) {

@@ -49,7 +49,7 @@ export default function CalendarPage() {
   const [weekOffset, setWeekOffset] = useState(0);
 
   const weekDays = useMemo(() => {
-    const anchor = new Date(2026, 6, 14);
+    const anchor = new Date(2026, 6, 15);
     anchor.setDate(anchor.getDate() - weekOffset * 7);
     const start = new Date(anchor);
     start.setDate(anchor.getDate() - anchor.getDay());
@@ -58,7 +58,7 @@ export default function CalendarPage() {
 
   const weekStart = weekDays[0];
   const weekEnd = weekDays[6];
-  const currentKey = "2026-07-14";
+  const currentKey = "2026-07-15";
   const activitiesByDate = useMemo(() => {
     const grouped = new Map<string, ActivityEntry[]>();
     state.activity.forEach((activity) => grouped.set(activity.date, [...(grouped.get(activity.date) ?? []), activity]));
