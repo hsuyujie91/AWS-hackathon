@@ -10,6 +10,7 @@ import {
   Bot,
   CheckCircle2,
   ChevronDown,
+  House,
   Medal,
   Play,
   Sparkles,
@@ -84,6 +85,7 @@ export function BuildingDetailClient() {
           </div>
           <div className="flex items-center gap-2 md:justify-self-end">
             <span className="flex items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50/70 px-3 py-2 font-black text-indigo-950"><Medal className="h-6 w-6 text-indigo-600" />Lv.{building.level}</span>
+            <button onClick={() => router.push("/")} aria-label="回到城市首頁" title="回到城市首頁" className="grid h-11 w-11 place-items-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-600 transition hover:border-indigo-200 hover:bg-indigo-100"><House className="h-5 w-5" /></button>
           </div>
         </header>
 
